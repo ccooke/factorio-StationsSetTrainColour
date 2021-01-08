@@ -21,5 +21,13 @@ data:extend({
     icon_size = 64,
     subgroup = "SSTC-signal",
     order = "a-b"
+  },
+  {
+    type = "virtual-signal",
+    name = "sstc-color-error",
+    icon = "__StationsSetTrainColour__/icons/sstc-color-error.png",
+    icon_size = 64,
+    subgroup = "SSTC-signal",
+    order = "a-c"
   }
 })

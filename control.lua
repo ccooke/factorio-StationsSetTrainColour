@@ -1,27 +1,50 @@
 --Detect the state
 
+-- Define the signals we will use
 RGB = {
-  ["signal-R"] = "r",
-  ["signal-G"] = "g",
-  ["signal-B"] = "b",
-  ["signal-A"] = "a"
+  [settings.global["sstn-rgb-red-signal"].value] = "r",
+  [settings.global["sstn-rgb-green-signal"].value] = "g",
+  [settings.global["sstn-rgb-blue-signal"].value] = "b",
+  [settings.global["sstn-rgb-alpha-signal"].value] = "a"
 }
-TRAIN_DEFAULT = { r=234, g=17, b=0, a=128 }
 
-ERROR = { ["type"] = "virtual", ["name"] = "signal-red" }
+-- Default train RGBA
+TRAIN_DEFAULT = {
+  r=settings.global["sstn-default-rgb-red"].value,
+  g=settings.global["sstn-default-rgb-green"].value,
+  b=settings.global["sstn-default-rgb-blue"].value,
+  a=settings.global["sstn-default-rgb-alpha"].value
+}
 
+-- The icon used for our alert signal
+ERROR = { ["type"] = "virtual", ["name"] = "sstc-color-error" }
+
+-- flags used to select actions
 MODES = {
   do_nothing = 0,
   set_colour = 1,
   reset_colour = 2
 }
 
+-- What signals activate modes
 CONTROL_SIGNALS = {
   ["sstc-set-color"] = MODES.set_colour,
   ["sstc-reset-color"] = MODES.reset_colour
 }
 
-function set_train_colour(train, colour)
+-- Strings for debugging
+SET = 'Set (by signal)'
+RESET = 'Reset (by signal)'
+DEFAULT_RESET = 'Reset'
+
+function colour_to_string(colour)
+  return "(R="..colour.r..",G="..colour.g..",B="..colour.b..",A="..colour.a..")"
+end
+
+function set_train_colour(train, colour, action)
+  if settings.global['sstn-debug'].value then
+    game.print("Train "..train.id.." waiting at station "..train.station.backer_name.." - "..action.." to "..colour_to_string(colour))
+  end
   for _,locomotive in pairs(train.locomotives['front_movers']) do
     locomotive.color = colour
   end
@@ -37,6 +60,7 @@ function player_alert(entity, icon, message, force)
   end
   for _, player in pairs(force.players) do
     player.add_custom_alert(entity, icon, message, true)
+    player.play_sound{path="utility/cannot_build"}
   end
 end
 
@@ -47,7 +71,6 @@ script.on_event(defines.events.on_train_changed_state,
       local station = train.station
       local signals = station.get_merged_signals()
       local out = serpent.line(signals)
-      -- game.print("Train "..train.id.." waiting at station "..train.station.backer_name.." [Signals: "..out.."]")
 
       local rgb = { r=0, g=0, b=0, a=128 }
 
@@ -59,8 +82,8 @@ script.on_event(defines.events.on_train_changed_state,
 
       for _,s in pairs(signals) do
         if RGB[s.signal.name] then
-          if s.count > 255 then
-            player_alert(station, ERROR, "RGB values out of range", true)
+          if s.count > 255 or s.count < 0 then
+            player_alert(station, ERROR, "RGB values out of range (0-255) at station "..station.backer_name, station.force)
             return
           end
           rgb[RGB[s.signal.name]] = s.count
@@ -69,13 +92,15 @@ script.on_event(defines.events.on_train_changed_state,
         end
       end
 
-      -- game.print("Operation: MODE is "..mode)
-
-      if bit32.band(mode, MODES.set_colour) > 0 then
-        set_train_colour(train, rgb)
+      if settings.global['sstn-debug'].value then
+        game.print("Train "..train.id.." waiting at station "..train.station.backer_name.." - MODE is "..mode.." --- reset=".. bit32.band(mode,MODES.reset_colour) .. ", set="..bit32.band(mode,MODES.set_colour))
       end
       if bit32.band(mode, MODES.reset_colour) > 0 then
-        set_train_colour(train, TRAIN_DEFAULT)
+        set_train_colour(train, TRAIN_DEFAULT, RESET)
+      elseif bit32.band(mode, MODES.set_colour) > 0 then
+        set_train_colour(train, rgb, SET)
+      elseif settings.global['sstn-default-reset'].value then
+        set_train_colour(train, TRAIN_DEFAULT, DEFAULT_RESET)
       end
     end
   end
