@@ -80,14 +80,15 @@ script.on_event(defines.events.on_train_changed_state,
       end
 
       local mode = MODES.do_nothing
+      local colour_error = false
 
       for _,s in pairs(signals) do
         if RGB[s.signal.name] then
           if s.count > 255 or s.count < 0 then
-            player_alert(station, ERROR, "RGB values out of range (0-255) at station "..station.backer_name, station.force)
-            return
+            colour_error = true
+          else
+            rgb[RGB[s.signal.name]] = s.count
           end
-          rgb[RGB[s.signal.name]] = s.count
         elseif CONTROL_SIGNALS[s.signal.name] and s.count > 0 then
           mode = bit32.bor(mode, CONTROL_SIGNALS[s.signal.name])
         end
@@ -99,7 +100,11 @@ script.on_event(defines.events.on_train_changed_state,
       if bit32.band(mode, MODES.reset_colour) > 0 then
         set_train_colour(train, default_train_colour(), RESET)
       elseif bit32.band(mode, MODES.set_colour) > 0 then
-        set_train_colour(train, rgb, SET)
+        if colour_error then
+          player_alert(station, ERROR, "RGB values out of range (0-255) at station "..station.backer_name, station.force)
+        else
+          set_train_colour(train, rgb, SET)
+        end
       elseif settings.global['sstn-default-reset'].value then
         set_train_colour(train, default_train_colour(), DEFAULT_RESET)
       end
