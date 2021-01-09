@@ -2,17 +2,17 @@
 Version: 0.0.4
 Date: 2020-01-09 03:24:50+00:00
   Info:
-		- Added a better-than-nothing thumbnail
+    - Added a better-than-nothing thumbnail
 ---------------------------------------------------------------------------------------------------
 Version: 0.0.3
 Date: 2020-01-09 02:54:01+00:00
   Bugfixes:
-		- Fixed 'Default Reset' not working when stations had no signals
+    - Fixed 'Default Reset' not working when stations had no signals
 ---------------------------------------------------------------------------------------------------
 Version: 0.0.2
 Date: 2020-01-09 02:11:28+00:00
-	Feature:
-		- Module settings added
+  Feature:
+    - Module settings added
 ---------------------------------------------------------------------------------------------------
 Version: 0.0.1
 Date: 2020-01-08 19:23:15+00:00
@@ -21,4 +21,4 @@ Date: 2020-01-08 19:23:15+00:00
   Feature:
     - Set train colour from signals
   Locale:
-		- English only
+    - English only
