@@ -76,7 +76,7 @@ script.on_event(defines.events.on_train_changed_state,
       local rgb = { r=0, g=0, b=0, a=128 }
 
       if signals == nil then
-        return
+        signals = {}
       end
 
       local mode = MODES.do_nothing
