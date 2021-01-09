@@ -8,14 +8,6 @@ RGB = {
   [settings.global["sstn-rgb-alpha-signal"].value] = "a"
 }
 
--- Default train RGBA
-TRAIN_DEFAULT = {
-  r=settings.global["sstn-default-rgb-red"].value,
-  g=settings.global["sstn-default-rgb-green"].value,
-  b=settings.global["sstn-default-rgb-blue"].value,
-  a=settings.global["sstn-default-rgb-alpha"].value
-}
-
 -- The icon used for our alert signal
 ERROR = { ["type"] = "virtual", ["name"] = "sstc-color-error" }
 
@@ -36,6 +28,15 @@ CONTROL_SIGNALS = {
 SET = 'Set (by signal)'
 RESET = 'Reset (by signal)'
 DEFAULT_RESET = 'Reset'
+
+function default_train_colour()
+  return({
+    r=settings.global["sstn-default-rgb-red"].value,
+    g=settings.global["sstn-default-rgb-green"].value,
+    b=settings.global["sstn-default-rgb-blue"].value,
+    a=settings.global["sstn-default-rgb-alpha"].value
+  })
+end
 
 function colour_to_string(colour)
   return "(R="..colour.r..",G="..colour.g..",B="..colour.b..",A="..colour.a..")"
@@ -96,11 +97,11 @@ script.on_event(defines.events.on_train_changed_state,
         game.print("Train "..train.id.." waiting at station "..train.station.backer_name.." - MODE is "..mode.." --- reset=".. bit32.band(mode,MODES.reset_colour) .. ", set="..bit32.band(mode,MODES.set_colour))
       end
       if bit32.band(mode, MODES.reset_colour) > 0 then
-        set_train_colour(train, TRAIN_DEFAULT, RESET)
+        set_train_colour(train, default_train_colour(), RESET)
       elseif bit32.band(mode, MODES.set_colour) > 0 then
         set_train_colour(train, rgb, SET)
       elseif settings.global['sstn-default-reset'].value then
-        set_train_colour(train, TRAIN_DEFAULT, DEFAULT_RESET)
+        set_train_colour(train, default_train_colour(), DEFAULT_RESET)
       end
     end
   end
