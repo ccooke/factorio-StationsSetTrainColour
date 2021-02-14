@@ -6,5 +6,5 @@
   "contact": "ccooke-factorio@gkhs.net",
   "factorio_version": "1.1",
   "dependencies": ["base >= 1.1"],
-  "description": "Set a trains colour when it stops at a station using R, G and B signals"
+  "description": "Set a train's colour when it stops at a station using R, G and B signals"
 }
